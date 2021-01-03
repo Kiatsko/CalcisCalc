@@ -28,6 +28,21 @@ class MainActivity : AppCompatActivity() {
             number = income
             operation = Operation.PLUS
         }
+        minus.setOnClickListener {
+            val income = editTxt.text.toString().toDoubleOrNull() ?: return@setOnClickListener
+            number = income
+            operation = Operation.MINUS
+        }
+        multiple.setOnClickListener {
+            val income = editTxt.text.toString().toDoubleOrNull() ?: return@setOnClickListener
+            number = income
+            operation = Operation.MULTIPLE
+        }
+        divide.setOnClickListener {
+            val income = editTxt.text.toString().toDoubleOrNull() ?: return@setOnClickListener
+            number = income
+            operation = Operation.DIVIDE
+        }
     }
 }
 

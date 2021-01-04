@@ -10,12 +10,13 @@ class MainActivity : AppCompatActivity() {
 
     var operation: Operation? = null
     var number: Double? = null
+    var result = 0.0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         val txView = findViewById<TextView>(R.id.textView)
-        val editTxt = findViewById<TextView>(R.id.editTextNumber)
+        val editTxt = findViewById<TextView>(R.id.editTextNumberDecimal)
         val plus = findViewById<TextView>(R.id.buttonPlus)
         val minus = findViewById<TextView>(R.id.buttonMinus)
         val multiple = findViewById<TextView>(R.id.buttonMult)
@@ -23,25 +24,77 @@ class MainActivity : AppCompatActivity() {
         val clean = findViewById<TextView>(R.id.buttonClean)
         val equals = findViewById<TextView>(R.id.buttonEq)
 
-        plus.setOnClickListener {
-            val income = editTxt.text.toString().toDoubleOrNull() ?: return@setOnClickListener
-            number = income
-            operation = Operation.PLUS
+        val function = View.OnClickListener { view ->
+            if (txView.text == "") {
+                number = editTxt.text.toString().toDoubleOrNull() ?: return@OnClickListener
+
+                when (view.id) {
+                    R.id.buttonPlus -> {
+                        operation = Operation.PLUS
+                        txView.text = "$number +"
+                    }
+                    R.id.buttonMinus -> {
+                        operation = Operation.MINUS
+                        txView.text = "$number -"
+                    }
+                    R.id.buttonMult -> {
+                        operation = Operation.MULTIPLE
+                        txView.text = "$number *"
+                    }
+                    R.id.buttonDiv -> {
+                        operation = Operation.DIVIDE
+                        txView.text = "$number /"
+                    }
+                }
+
+                editTxt.text = ""
+            } else {
+                val nexnumber = editTxt.text.toString().toDoubleOrNull() ?: return@OnClickListener
+                when (view.id) {
+                    R.id.buttonPlus -> {
+                        result = number!! + nexnumber
+                        txView.text = "$result +"
+                    }
+                    R.id.buttonMinus -> {result = number!! - nexnumber
+                        txView.text = "$result -"
+                    }
+                    R.id.buttonMult -> {result = number!! * nexnumber
+                        txView.text = "$result *"
+                    }
+                    R.id.buttonDiv -> {result = number!! / nexnumber
+                        txView.text = "$result /"
+                    }
+                }
+
+
+                editTxt.text = ""
+                number = result
+            }
         }
-        minus.setOnClickListener {
-            val income = editTxt.text.toString().toDoubleOrNull() ?: return@setOnClickListener
-            number = income
-            operation = Operation.MINUS
+
+        plus.setOnClickListener(function)
+        minus.setOnClickListener(function)
+        multiple.setOnClickListener(function)
+        divide.setOnClickListener(function)
+
+        clean.setOnClickListener {
+            txView.text = ""
+            editTxt.text = ""
+            number = null
+            operation = null
         }
-        multiple.setOnClickListener {
-            val income = editTxt.text.toString().toDoubleOrNull() ?: return@setOnClickListener
-            number = income
-            operation = Operation.MULTIPLE
-        }
-        divide.setOnClickListener {
-            val income = editTxt.text.toString().toDoubleOrNull() ?: return@setOnClickListener
-            number = income
-            operation = Operation.DIVIDE
+        equals.setOnClickListener {
+            val secnumber = editTxt.text.toString().toDoubleOrNull() ?: return@setOnClickListener
+
+            when (operation) {
+                Operation.PLUS -> result = number!! + secnumber
+                Operation.MINUS -> result = number!! - secnumber
+                Operation.MULTIPLE -> result = number!! * secnumber
+                Operation.DIVIDE -> result = number!! / secnumber
+            }
+            txView.text = "$result"
+            editTxt.text = ""
+
         }
     }
 }

@@ -10,8 +10,9 @@ class MainActivity : AppCompatActivity() {
 
     var operation: Operation? = null
     var number: Double? = null
-    var result = 0.0
     override fun onCreate(savedInstanceState: Bundle?) {
+
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -25,51 +26,21 @@ class MainActivity : AppCompatActivity() {
         val equals = findViewById<TextView>(R.id.buttonEq)
 
         val function = View.OnClickListener { view ->
-            if (txView.text == "") {
-                number = editTxt.text.toString().toDoubleOrNull() ?: return@OnClickListener
-
-                when (view.id) {
-                    R.id.buttonPlus -> {
-                        operation = Operation.PLUS
-                        txView.text = "$number +"
-                    }
-                    R.id.buttonMinus -> {
-                        operation = Operation.MINUS
-                        txView.text = "$number -"
-                    }
-                    R.id.buttonMult -> {
-                        operation = Operation.MULTIPLE
-                        txView.text = "$number *"
-                    }
-                    R.id.buttonDiv -> {
-                        operation = Operation.DIVIDE
-                        txView.text = "$number /"
-                    }
-                }
-
-                editTxt.text = ""
-            } else {
-                val nexnumber = editTxt.text.toString().toDoubleOrNull() ?: return@OnClickListener
-                when (view.id) {
-                    R.id.buttonPlus -> {
-                        result = number!! + nexnumber
-                        txView.text = "$result +"
-                    }
-                    R.id.buttonMinus -> {result = number!! - nexnumber
-                        txView.text = "$result -"
-                    }
-                    R.id.buttonMult -> {result = number!! * nexnumber
-                        txView.text = "$result *"
-                    }
-                    R.id.buttonDiv -> {result = number!! / nexnumber
-                        txView.text = "$result /"
-                    }
-                }
-
-
-                editTxt.text = ""
-                number = result
+            var nexnumber = editTxt.text.toString().toDoubleOrNull() ?: return@OnClickListener
+            val nexoperation = when (view.id) {
+                R.id.buttonPlus -> Operation.PLUS
+                R.id.buttonMinus -> Operation.MINUS
+                R.id.buttonMult -> Operation.MULTIPLE
+                R.id.buttonDiv -> Operation.DIVIDE
+                else -> null
+            } ?: return@OnClickListener
+            if (txView.text != "") {
+                nexnumber = operation?.calc?.invoke(number!!, nexnumber) ?: 0.0
             }
+            editTxt.text = ""
+            number = nexnumber
+            operation = nexoperation
+            txView.text = "$nexnumber ${nexoperation.label}"
         }
 
         plus.setOnClickListener(function)
@@ -86,19 +57,24 @@ class MainActivity : AppCompatActivity() {
         equals.setOnClickListener {
             val secnumber = editTxt.text.toString().toDoubleOrNull() ?: return@setOnClickListener
 
-            when (operation) {
-                Operation.PLUS -> result = number!! + secnumber
-                Operation.MINUS -> result = number!! - secnumber
-                Operation.MULTIPLE -> result = number!! * secnumber
-                Operation.DIVIDE -> result = number!! / secnumber
-            }
-            txView.text = "$result"
+            number = operation!!.calc(number!!, secnumber)
+            txView.text = "$number"
             editTxt.text = ""
 
         }
     }
 }
 
-enum class Operation {
-    PLUS, MINUS, MULTIPLE, DIVIDE
+
+enum class Operation(
+    val label: String,
+    val calc: (Double, Double) -> Double
+) {
+    PLUS(label = "+", calc = Double::plus),
+    MINUS("-", Double::minus),
+    MULTIPLE(
+        "*",
+        Double::times
+    ),
+    DIVIDE("/", Double::div)
 }
